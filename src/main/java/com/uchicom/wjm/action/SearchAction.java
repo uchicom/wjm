@@ -23,7 +23,7 @@ public class SearchAction extends AbstractAction {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		frame.search();
+		frame.search(null);
 	}
 
 }

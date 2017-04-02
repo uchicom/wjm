@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLStreamHandler;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -44,6 +45,11 @@ public class WJMFrame extends JFrame {
 		super("Regression");
 		initComponents();
 	}
+	public WJMFrame(URL url) {
+		this();
+		searchTextField.setText(url.toString());
+		search(url);
+	}
 
 	private void initComponents() {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -68,7 +74,6 @@ public class WJMFrame extends JFrame {
 				}
 			}
 		});
-//		HTMLDocument document = new HTMLDocument(){
 //			@Override
 //			public HTMLEditorKit.ParserCallback getReader(int pos) {
 //				HTMLReader callback = new HTMLReader(pos) {
@@ -90,13 +95,84 @@ public class WJMFrame extends JFrame {
 //	public void flush() {
 //		System.out.println(((HTMLDocument)editorPane.getDocument()).getBase());
 //	}
-	public void search() {
+	public void search(URL url) {
+		System.out.println(editorPane.getText());
+		if (url != null) {
+			try {
+//				URLConnection con = url.openConnection();
+//				con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+//				con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
+//				con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
+//				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+//				System.out.println(con.getURL());
+
+//				InputStream is = con.getInputStream();
+//				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//				byte[] bytes = new byte[1024 * 4 * 10];
+//				int length = 0;
+//				while ((length = is.read(bytes)) > 0) {
+//					baos.write(bytes, 0, length);
+//				}
+//				String string = new String(baos.toByteArray());
+//				System.out.println(string);
+
+
+				editorPane.setPage(url);// httpsに変化していることは検知できなさそう。WebKitのエンジンを使用する必要がありそう。
+
+				//				is.close();
+			} catch (MalformedURLException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
+			return;
+		}
 		String searchText = searchTextField.getText();
 		if (searchText.startsWith("http://") || searchText.startsWith("https://")) {
 			try {
-				URL url = new URL(searchText);
-				editorPane.setPage(url);// httpsに変化していることは検知できなさそう。WebKitのエンジンを使用する必要がありそう。
 
+				url = new URL(searchText);
+				url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile() , new URLStreamHandler() {
+
+					@Override
+					protected int getDefaultPort() {
+						System.out.println("dp:" + super.getDefaultPort());
+						return 80;
+					}
+					@Override
+					protected URLConnection openConnection(URL paramURL) throws IOException {
+						System.out.println("openCon:" + paramURL);
+						URLConnection con = new URL(paramURL.toString()).openConnection();
+//						con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+						con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
+						con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
+						con.setRequestProperty("User-Agent", "WJM/1.0");
+						return con;
+					}
+
+				});
+//				URLConnection con = url.openConnection();
+//				con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+//				con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
+//				con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
+//				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+//				System.out.println(con.getURL());
+
+//				InputStream is = con.getInputStream();
+//				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//				byte[] bytes = new byte[1024 * 4 * 10];
+//				int length = 0;
+//				while ((length = is.read(bytes)) > 0) {
+//					baos.write(bytes, 0, length);
+//				}
+//				String string = new String(baos.toByteArray());
+//
+//				System.out.println(string);
+
+				editorPane.setPage(url);// httpsに変化していることは検知できなさそう。WebKitのエンジンを使用する必要がありそう。
+//				is.close();
 			} catch (MalformedURLException e) {
 				// TODO 自動生成された catch ブロック
 				e.printStackTrace();
@@ -112,12 +188,12 @@ public class WJMFrame extends JFrame {
 			searchText = strBuff.toString();
 			try {
 				long start = System.currentTimeMillis();
-				URL url = new URL(searchText);
+				url = new URL(searchText);
 				URLConnection con = url.openConnection();
-				con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+//				con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
 				con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
 				con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
-				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+				con.setRequestProperty("User-Agent", "WJM/1.0");
 				System.out.println(con.getURL());
 
 				InputStream is = con.getInputStream();
@@ -156,6 +232,7 @@ public class WJMFrame extends JFrame {
 													// "src='http://localhost:8080/api/gk?url=http"));
 
 				System.out.println("html:" + (System.currentTimeMillis() - start));
+				is.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(this, e.getMessage());
