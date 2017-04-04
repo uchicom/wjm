@@ -4,6 +4,7 @@ package com.uchicom.wjm;
 import javax.swing.SwingUtilities;
 
 /**
+ *
  * @author uchicom: Shigeki Uchiyama
  *
  */
