@@ -13,6 +13,7 @@ public class Item {
 	private String kind;
 	private String title;
 	private String link;
+	private String snippet;
 	public String getKind() {
 		return kind;
 	}
@@ -30,5 +31,21 @@ public class Item {
 	}
 	public void setLink(String link) {
 		this.link = link;
+	}
+	/**
+	 * snippetを取得します.
+	 *
+	 * @return snippet
+	 */
+	public String getSnippet() {
+		return snippet;
+	}
+	/**
+	 * snippetを設定します.
+	 *
+	 * @param snippet snippet
+	 */
+	public void setSnippet(String snippet) {
+		this.snippet = snippet;
 	}
 }
