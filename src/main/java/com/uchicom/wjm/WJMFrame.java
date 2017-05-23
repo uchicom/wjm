@@ -2,13 +2,18 @@
 package com.uchicom.wjm;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Files;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -22,6 +27,7 @@ import javax.swing.event.HyperlinkEvent.EventType;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uchicom.ui.FileOpener;
 import com.uchicom.wjm.action.SearchAction;
 import com.uchicom.wjm.entity.Item;
 import com.uchicom.wjm.entity.Search;
@@ -30,7 +36,7 @@ import com.uchicom.wjm.entity.Search;
  * @author uchicom: Shigeki Uchiyama
  *
  */
-public class WJMFrame extends JFrame {
+public class WJMFrame extends JFrame implements FileOpener {
 
 	private JTextField searchTextField = new JTextField();
 
@@ -60,6 +66,7 @@ public class WJMFrame extends JFrame {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(northPanel, BorderLayout.NORTH);
 		getContentPane().add(new JScrollPane(editorPane), BorderLayout.CENTER);
+		FileOpener.installDragAndDrop(editorPane, this);
 
 		editorPane.setContentType("text/html");
 		editorPane.setEditable(false);
@@ -134,7 +141,7 @@ public class WJMFrame extends JFrame {
 			try {
 
 				url = new URL(searchText);
-				url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile() , new URLStreamHandler() {
+				url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile(), new URLStreamHandler() {
 
 					@Override
 					protected int getDefaultPort() {
@@ -145,10 +152,34 @@ public class WJMFrame extends JFrame {
 					protected URLConnection openConnection(URL paramURL) throws IOException {
 						System.out.println("openCon:" + paramURL);
 						URLConnection con = new URL(paramURL.toString()).openConnection();
+						if (con instanceof HttpURLConnection) {
+							HttpURLConnection hconn = (HttpURLConnection) con;
+							hconn.setInstanceFollowRedirects(false);
+							int response = hconn.getResponseCode();
+							boolean redirect = (response >= 300 && response <= 399);
+
+							/*
+							 * In the case of a redirect, we want to actually change the URL
+							 * that was input to the new, redirected URL
+							 */
+							if (redirect) {
+								String loc = con.getHeaderField("Location");
+								if (loc.startsWith("http", 0)) {
+									paramURL = new URL(loc);
+								} else {
+									paramURL = new URL(paramURL, loc);
+								}
+								con = new URL(paramURL.toString()).openConnection();
+								searchTextField.setText(paramURL.toString());
+							}
+						}
 //						con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
 						con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
 						con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
 						con.setRequestProperty("User-Agent", "WJM/1.0");
+						//JEditorPaneはfinalじゃないので、拡張すればいろいろできそう。
+
+						System.out.println("opendCon:" + con.getURL());
 						return con;
 					}
 
@@ -242,5 +273,37 @@ public class WJMFrame extends JFrame {
 
 	public void viewSource() {
 
+	}
+	/* (非 Javadoc)
+	 * @see com.uchicom.ui.FileOpener#open(java.io.File)
+	 */
+	@Override
+	public void open(File file) throws IOException {
+		if (file.getName().endsWith(".url")) {
+			byte[] bytes = Files.readAllBytes(file.toPath());
+			if (new String(bytes, 0, 24).equals("[InternetShortcut]\r\nURL=") &&
+					new String(bytes, bytes.length - 2, 2).equals("\r\n")) {
+				String url = new String(bytes, 24, bytes.length - 26);
+				searchTextField.setText(url);
+				search(null);
+			}
+		}
+
+	}
+	/* (非 Javadoc)
+	 * @see com.uchicom.ui.FileOpener#open(java.util.List)
+	 */
+	@Override
+	public void open(List<File> fileList) {
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		if (fileList.size() > 0) {
+			try {
+				open(fileList.get(0));
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(this, e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 }
