@@ -5,15 +5,19 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.URLStreamHandler;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -44,6 +48,8 @@ public class WJMFrame extends JFrame implements FileOpener {
 
 	private JEditorPane editorPane = new JEditorPane();
 
+	private Properties properties = new Properties();
+
 	/**
 	 * 検索すると検索結果が表示される。
 	 */
@@ -58,6 +64,11 @@ public class WJMFrame extends JFrame implements FileOpener {
 	}
 
 	private void initComponents() {
+		try (FileInputStream fis = new FileInputStream("conf/wjm.properties")) {
+			properties.load(fis);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new BorderLayout());
@@ -176,7 +187,7 @@ public class WJMFrame extends JFrame implements FileOpener {
 //						con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
 						con.setRequestProperty("Accept-Charset", "UTF-8,*;q=0.5");
 						con.setRequestProperty("Accept-Language", "ja,en-US;q=0.8,en;q=0.6");
-						con.setRequestProperty("User-Agent", "WJM/1.0");
+						con.setRequestProperty("User-Agent", "WJM/1.0.1");
 						//JEditorPaneはfinalじゃないので、拡張すればいろいろできそう。
 
 						System.out.println("opendCon:" + con.getURL());
@@ -214,8 +225,17 @@ public class WJMFrame extends JFrame implements FileOpener {
 		} else {
 			StringBuffer strBuff = new StringBuffer();
 			strBuff.append(
-					"https://www.googleapis.com/customsearch/v1?cx=015439328453381694250:0lstixiiymo&key=AIzaSyAS7ksAWl1kla3bP1Mz1TGHjll7YjyRSHg&q=");
-			strBuff.append(searchText);
+					"https://www.googleapis.com/customsearch/v1?cx=")
+			.append(properties.getProperty("cx"))
+			.append("&key=")
+			.append(properties.getProperty("key"))
+			.append("&q=");
+			try {
+				strBuff.append(URLEncoder.encode(searchText.replaceAll(" ", "+"), "utf-8"));
+			} catch (UnsupportedEncodingException e1) {
+				// TODO 自動生成された catch ブロック
+				e1.printStackTrace();
+			}
 			searchText = strBuff.toString();
 			try {
 				long start = System.currentTimeMillis();
