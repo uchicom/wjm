@@ -254,7 +254,7 @@ public class WJMFrame extends JFrame implements FileOpener {
 				while ((length = is.read(bytes)) > 0) {
 					baos.write(bytes, 0, length);
 				}
-				String string = new String(baos.toByteArray());
+				String string = new String(baos.toByteArray(), "utf-8");
 				System.out.println(string);
 				System.out.println(baos.size());
 				System.out.println("load:" + (System.currentTimeMillis() - start));
