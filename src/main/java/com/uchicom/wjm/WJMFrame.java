@@ -366,7 +366,6 @@ public class WJMFrame extends JFrame implements FileOpener {
 	private void storeWindowPosition(JFrame frame, String key) {
 		String value = frame.getLocation().x + Constants.PROP_SPLIT_CHAR + frame.getLocation().y + Constants.PROP_SPLIT_CHAR
 				+ frame.getWidth() + Constants.PROP_SPLIT_CHAR + frame.getHeight() + Constants.PROP_SPLIT_CHAR;
-		System.out.println(value);
 		properties.setProperty(key, value);
 	}
 	/**
