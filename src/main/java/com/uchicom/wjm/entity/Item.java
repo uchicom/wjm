@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Item {
 
+	private int seq;
 	private String kind;
 	private String title;
 	private String link;
@@ -47,5 +48,47 @@ public class Item {
 	 */
 	public void setSnippet(String snippet) {
 		this.snippet = snippet;
+	}
+	/**
+	 * seqを取得します.
+	 *
+	 * @return seq
+	 */
+	public int getSeq() {
+		return seq;
+	}
+	/**
+	 * seqを設定します.
+	 *
+	 * @param seq seq
+	 */
+	public void setSeq(int seq) {
+		this.seq = seq;
+	}
+	/* (非 Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + seq;
+		return result;
+	}
+	/* (非 Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Item other = (Item) obj;
+		if (seq != other.seq)
+			return false;
+		return true;
 	}
 }
