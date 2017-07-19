@@ -3,16 +3,8 @@ package com.uchicom.wjm;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -29,7 +21,6 @@ import java.util.Properties;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,6 +30,7 @@ import javax.swing.event.HyperlinkEvent.EventType;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uchicom.ui.FileOpener;
+import com.uchicom.ui.ResumeFrame;
 import com.uchicom.wjm.action.SearchAction;
 import com.uchicom.wjm.entity.Item;
 import com.uchicom.wjm.entity.Search;
@@ -47,7 +39,7 @@ import com.uchicom.wjm.entity.Search;
  * @author uchicom: Shigeki Uchiyama
  *
  */
-public class WJMFrame extends JFrame implements FileOpener {
+public class WJMFrame extends ResumeFrame implements FileOpener {
 
 	private JTextField searchTextField = new JTextField();
 
@@ -61,7 +53,7 @@ public class WJMFrame extends JFrame implements FileOpener {
 	 * 検索すると検索結果が表示される。
 	 */
 	public WJMFrame() {
-		super("Regression");
+		super(Constants.CONF_FILE, Constants.PROP_KEY_WJM);
 		initComponents();
 	}
 	public WJMFrame(URL url) {
@@ -71,36 +63,9 @@ public class WJMFrame extends JFrame implements FileOpener {
 	}
 
 	private void initComponents() {
-		initProperties();
-		setWindowPosition(this, Constants.PROP_KEY_WINDOW_WJM_POSITION);
-		setWindowState(this, Constants.PROP_KEY_WINDOW_WJM_STATE);
+
+		setTitle("Regression");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent we) {
-				if (WJMFrame.this.getExtendedState() == JFrame.NORMAL) {
-					// 画面の位置を保持する
-					storeWindowPosition(WJMFrame.this, Constants.PROP_KEY_WINDOW_WJM_POSITION);
-				} else {
-					storeWindowState(WJMFrame.this, Constants.PROP_KEY_WINDOW_WJM_STATE);
-				}
-				storeProperties();
-			}
-		});
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentMoved(ComponentEvent ce) {
-				if (getExtendedState() == JFrame.NORMAL) {
-					storeWindowPosition(WJMFrame.this, Constants.PROP_KEY_WINDOW_WJM_POSITION);
-				}
-			}
-			@Override
-			public void componentResized(ComponentEvent ce) {
-				if (getExtendedState() == JFrame.NORMAL) {
-					storeWindowPosition(WJMFrame.this, Constants.PROP_KEY_WINDOW_WJM_POSITION);
-				}
-			}
-		});
 
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new BorderLayout());
@@ -357,86 +322,5 @@ public class WJMFrame extends JFrame implements FileOpener {
 		}
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-	/**
-	 * 画面の位置をプロパティに設定する。
-	 *
-	 * @param frame
-	 * @param key
-	 */
-	private void storeWindowPosition(JFrame frame, String key) {
-		String value = frame.getLocation().x + Constants.PROP_SPLIT_CHAR + frame.getLocation().y + Constants.PROP_SPLIT_CHAR
-				+ frame.getWidth() + Constants.PROP_SPLIT_CHAR + frame.getHeight() + Constants.PROP_SPLIT_CHAR;
-		properties.setProperty(key, value);
-	}
-	/**
-	 * 画面の位置をプロパティに設定する。
-	 *
-	 * @param frame
-	 * @param key
-	 */
-	private void storeWindowState(JFrame frame, String key) {
-		String value = frame.getState() + Constants.PROP_SPLIT_CHAR
-				+ frame.getExtendedState();
-		properties.setProperty(key, value);
-	}
 
-	/**
-	 * 画面のサイズをプロパティから設定する。
-	 *
-	 * @param frame
-	 * @param key
-	 */
-	public void setWindowPosition(JFrame frame, String key) {
-		if (properties.containsKey(key)) {
-			String initPoint = properties.getProperty(key);
-			String[] points = initPoint.split(Constants.PROP_SPLIT_CHAR);
-			if (points.length > 3) {
-				frame.setLocation(Integer.parseInt(points[0]), Integer.parseInt(points[1]));
-				frame.setPreferredSize(new Dimension(Integer.parseInt(points[2]), Integer.parseInt(points[3])));
-			}
-		}
-	}
-	public void setWindowState(JFrame frame, String key) {
-		if (properties.containsKey(key)) {
-			String initPoint = properties.getProperty(key);
-			String[] points = initPoint.split(Constants.PROP_SPLIT_CHAR);
-			if (points.length > 1) {
-				frame.setState(Integer.parseInt(points[0]));
-				frame.setExtendedState(Integer.parseInt(points[1]));
-			}
-		}
-	}
-
-	/**
-	 *
-	 */
-
-	private void initProperties() {
-		if (Constants.CONF_FILE.exists() && Constants.CONF_FILE.isFile()) {
-			try (FileInputStream fis = new FileInputStream(Constants.CONF_FILE);) {
-				properties.load(fis);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	private void storeProperties() {
-		try {
-			if (!Constants.CONF_FILE.exists()) {
-				Constants.CONF_FILE.getParentFile().mkdirs();
-				Constants.CONF_FILE.createNewFile();
-			}
-			try (FileOutputStream fos = new FileOutputStream(Constants.CONF_FILE);) {
-				properties.store(fos, Constants.APP_NAME + " Ver" + Constants.VERSION);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }
