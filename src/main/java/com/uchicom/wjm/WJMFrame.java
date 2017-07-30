@@ -16,7 +16,6 @@ import java.net.URLEncoder;
 import java.net.URLStreamHandler;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -46,8 +45,6 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 	private Action searchAction = new SearchAction(this);
 
 	private JEditorPane editorPane = new JEditorPane();
-
-	private Properties properties = new Properties();
 
 	/**
 	 * 検索すると検索結果が表示される。
@@ -223,9 +220,9 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 			StringBuffer strBuff = new StringBuffer();
 			strBuff.append(
 					"https://www.googleapis.com/customsearch/v1?cx=")
-			.append(properties.getProperty("cx"))
+			.append(config.getProperty("cx"))
 			.append("&key=")
-			.append(properties.getProperty("key"))
+			.append(config.getProperty("key"))
 			.append("&q=");
 			try {
 				strBuff.append(URLEncoder.encode(searchText.replaceAll(" ", "+"), "utf-8"));
