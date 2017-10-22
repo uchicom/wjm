@@ -32,7 +32,7 @@ public class CustomSearch {
 		.append("&q=")
 		.append(URLEncoder.encode(search.replaceAll(" ", "+"), "utf-8"));
 
-		long start = System.currentTimeMillis();
+//		long start = System.currentTimeMillis();
 		URL url = new URL(strBuff.toString());
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 //			con.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
@@ -52,7 +52,7 @@ public class CustomSearch {
 	//		System.out.println(string);
 //			System.out.println(baos.size());
 //			System.out.println("load:" + (System.currentTimeMillis() - start));
-			start = System.currentTimeMillis();
+//			start = System.currentTimeMillis();
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(Feature.AUTO_CLOSE_SOURCE, true);
 //			System.out.println("html:" + (System.currentTimeMillis() - start));
