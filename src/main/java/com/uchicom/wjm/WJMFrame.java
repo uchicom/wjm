@@ -20,7 +20,6 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -30,6 +29,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uchicom.ui.FileOpener;
 import com.uchicom.ui.ResumeFrame;
+import com.uchicom.ui.util.DialogUtil;
 import com.uchicom.wjm.action.SearchAction;
 import com.uchicom.wjm.entity.Item;
 import com.uchicom.wjm.entity.Search;
@@ -82,7 +82,7 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 					editorPane.setPage(event.getURL());
 				} catch (Exception e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(this, e.getMessage());
+					DialogUtil.showMessageDialog(this, e.getMessage());
 				}
 			}
 		});
@@ -248,7 +248,7 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 					baos.write(bytes, 0, length);
 				}
 				String string = new String(baos.toByteArray(), "utf-8");
-				System.out.println(string);
+//				System.out.println(string);
 				System.out.println(baos.size());
 				System.out.println("load:" + (System.currentTimeMillis() - start));
 				start = System.currentTimeMillis();
@@ -279,7 +279,7 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 				is.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(this, e.getMessage());
+				DialogUtil.showMessageDialog(this, e.getMessage());
 			}
 		}
 	}
@@ -313,7 +313,7 @@ public class WJMFrame extends ResumeFrame implements FileOpener {
 			try {
 				open(fileList.get(0));
 			} catch (IOException e) {
-				JOptionPane.showMessageDialog(this, e.getMessage());
+				DialogUtil.showMessageDialog(this, e.getMessage());
 				e.printStackTrace();
 			}
 		}
