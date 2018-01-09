@@ -10,7 +10,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.uchicom.ui.util.ResourceUtil;
+import com.uchicom.util.ResourceUtil;
 import com.uchicom.wjm.entity.Search;
 import com.uchicom.wjm.util.CustomSearch;
 
