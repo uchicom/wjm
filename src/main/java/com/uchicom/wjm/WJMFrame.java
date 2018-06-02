@@ -40,6 +40,11 @@ import com.uchicom.wjm.entity.Search;
  */
 public class WJMFrame extends ResumeFrame implements FileOpener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private JTextField searchTextField = new JTextField();
 
 	private Action searchAction = new SearchAction(this);

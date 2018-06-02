@@ -13,6 +13,10 @@ import com.uchicom.wjm.WJMFrame;
  */
 public class SearchAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private WJMFrame frame;
 	public SearchAction(WJMFrame frame) {
 		this.frame = frame;

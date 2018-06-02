@@ -12,6 +12,10 @@ import com.uchicom.wjm.WJMFrame;
  *
  */
 public class ViewSourceAction extends AbstractAction {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private WJMFrame frame;
 	public ViewSourceAction(WJMFrame frame) {
